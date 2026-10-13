@@ -1,1 +1,3 @@
 .DS_Store
+# the legal notice is added at deploy time from a secret, so the address stays out of the public source
+impressum.html

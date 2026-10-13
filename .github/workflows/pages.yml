@@ -1,0 +1,44 @@
+# Publishes the site to GitHub Pages on every push to main.
+# The only thing it adds is impressum.html, which is kept in a repository secret instead of the
+# public source: it carries a private address and phone number.
+name: Deploy to Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the site
+        env:
+          IMPRESSUM_HTML: ${{ secrets.IMPRESSUM_HTML }}
+        run: |
+          test -n "$IMPRESSUM_HTML" || { echo "The IMPRESSUM_HTML secret is missing"; exit 1; }
+          mkdir _site
+          cp -R index.html style.css fx.js favicon.svg robots.txt assets _site/
+          printf '%s\n' "$IMPRESSUM_HTML" > _site/impressum.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+          retention-days: 1
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
