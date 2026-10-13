@@ -177,6 +177,7 @@ h1 {
    pixel, so it is shown at its natural size and never smoothed. */
 
 figure {
+  justify-self: start; /* the frame hugs the photo, also when the hero is a single column */
   padding: 5px;
   border: 1px solid var(--ink);
 }
